@@ -25,8 +25,8 @@ The `.skill` file is a packaged artifact of the source `.md` + asset files, anal
 - Template files referenced by a skill (e.g. `summary-template.md`) use `{{placeholder}}` syntax; keep placeholder names consistent between the skill's instructions and the template itself.
 - To inspect a `.skill` archive's contents without extracting: `unzip -l "path/to/name.skill"`. To rebuild one after editing source files, zip the skill's folder (containing `SKILL.md` at its root and any `assets/` subdirectory) into `<skill-name>.skill`.
 
-## flux-klein
+## generate-image
 
-`flux-klein/` contains a single `SKILL.md` (no `.skill` package yet) for generating images from text prompts via the flux-klein MCP tools.
+`generate-image/` contains a single `SKILL.md` (no `.skill` package yet) for generating images from text prompts via the flux-klein MCP tools.
 
 **Note:** this skill relies on a **local setup** of FLUX.2-klein-4B from Hugging Face (https://huggingface.co/black-forest-labs/FLUX.2-klein-4B), not a hosted API. The model must be running locally for the skill to work.
