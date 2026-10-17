@@ -1,5 +1,5 @@
 ---
-name: "flux-klein"
+name: "generate-image"
 description: "Generate an image from a text prompt using the local Flux Klein 4B service through the flux-klein MCP tools, then show it inline. Use this whenever the user wants to create, generate, make, draw, render, or design an image, picture, illustration, or photo, including phrases like \"create image\", \"create-image\", \"generate image\", \"generate-image\", \"make an image\", \"draw me\", \"picture of\", \"illustration of\", \"render this\", \"maak me een afbeelding\", \"maak een afbeelding\", \"genereer een afbeelding\", \"teken\", or \"foto van\". Also use it when the user types /flux-klein. Walks the user through a clickable wizard, builds an English prompt, calls the service, and shows the result. Always go through the MCP tools, never the FastAPI or any HTTP endpoint."
 ---
  
