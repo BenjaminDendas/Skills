@@ -12,6 +12,7 @@ A collection of custom [Claude Skills](https://www.anthropic.com/news/skills): p
 | [`svg-flowchart`](#svg-flowchart) | Standalone HTML/SVG flowchart | Diagrams |
 | [`generate-image`](#generate-image) | Text-to-image with a local Flux Klein service | Media (local) |
 | [`generate-audio`](#generate-audio) | Text-to-speech WAV with a local Kokoro service | Media (local) |
+| [`narrate-video`](#narrate-video) | Adds a generated voiceover to a video | Media (local) |
 
 ### Product skills
 
@@ -39,7 +40,7 @@ Generates a single self-contained HTML file with an inline SVG flowchart or deci
 
 ### Media generation (local services)
 
-These two skills call MCP tools backed by **local models**, not a hosted API. The models must be running and reachable through the `flux-klein` MCP server for the skills to work. Both use a short clickable wizard to collect input and then call the tools directly, never an HTTP endpoint.
+These skills depend on **local models and tools** on your own machine, not a hosted API. `generate-image` and `generate-audio` call MCP tools that must be running and reachable through the `flux-klein` MCP server. They use a short clickable wizard to collect input and then call the tools directly, never an HTTP endpoint. `narrate-video` talks to the local Kokoro server directly and also needs local tooling (see below).
 
 #### `generate-image`
 
@@ -52,6 +53,21 @@ MCP tools used: `start_image_generation`, `get_image_result`, `service_health`.
 Generates a spoken WAV file from text with a local Kokoro text-to-speech service. The wizard collects the text, voice, speed, and an optional file name. It speaks the text exactly as given (no rewriting or translating), calls the tool as soon as the wizard is complete, saves the WAV, and returns the file to the conversation. It is for speech only.
 
 MCP tool used: `generate_speech`.
+
+#### `narrate-video`
+
+Turns a silent video (for example an app screen recording) into a narrated one. It asks for a voice and style, extracts contact sheets of frames (one per second) to see what happens when, and writes a timed narration script. It shows the script as a table and waits for approval before generating any audio. It then synthesises each line with the local Kokoro TTS service, places it at its start time (raising speed up to 1.3x if a line overruns its slot), loudness-normalises the result, and muxes it into a new MP4 with ffmpeg. The original video is never modified. Kokoro is English-only.
+
+Helper script: `narrate-video/scripts/narrate.py` (subcommands `ffmpeg`, `sheets`, `audio`, `mux`).
+
+**Local dependencies** (the skill will not work without them):
+
+- A local Kokoro TTS server running on `localhost:8000` (`.venv/bin/uvicorn server:app --port 8000`), with `/health` reporting `tts_loaded: true`.
+- A Python virtual environment at `.venv` in the project root, with `numpy` and `soundfile` installed.
+- `ffmpeg`: a system install is used if found, otherwise the helper installs `imageio-ffmpeg` into the venv.
+- The skill is expected at `.claude/skills/narrate-video/` and run from the project root, and writes results to an `outputs/` folder.
+
+**Platform:** currently only tested on a MacBook (macOS). It may work elsewhere, but Linux and Windows are untested.
 
 ## Repository layout
 
@@ -67,6 +83,7 @@ Each skill lives in its own top-level folder:
 - `SKILL.md`'s frontmatter `description` is what Claude Code uses to decide when to invoke the skill. `name` must match the folder name.
 - `functional-requirements-analyst/` keeps supporting docs in `references/`. `product-request-loop/` keeps its template in `assets/`.
 - `product-request-loop/` also ships a packaged `product-request-loop.skill`, a zip archive of the skill folder for distribution. It is the only skill packaged this way so far.
+- `narrate-video/` keeps its helper script in `scripts/`.
 - `idea-market-research/SKILL.md` currently has no YAML frontmatter, so it won't auto-trigger until `name` and `description` are added.
 - Templates use `{{placeholder}}` syntax. Keep placeholder names consistent between a skill's instructions and its template.
 
